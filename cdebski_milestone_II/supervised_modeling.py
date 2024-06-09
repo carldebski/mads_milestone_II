@@ -30,7 +30,7 @@ def linear_model(X, y):
     mse = mean_squared_error(y_test, y_pred)
     r2 = r2_score(y_test, y_pred)
 
-    return r2, mse
+    return r2
 
 
 def svr_model(X, y):
@@ -66,7 +66,7 @@ def svr_model(X, y):
     mse = mean_squared_error(y_test, y_pred)
     r2 = r2_score(y_test, y_pred)
 
-    return r2, mse
+    return r2
 
 
 def decision_tree_model(X, y):
@@ -89,12 +89,12 @@ def decision_tree_model(X, y):
     mse = mean_squared_error(y_test, y_pred)
     r2 = r2_score(y_test, y_pred)
 
-    return r2, mse
+    return r2
 
 
 def model_comparison(df, ticker, features):
-    #models = {'Linear':linear_model(), 'Support Vector (SVR)': svr_model(), 'Decision Tree':decision_tree_model()}
-    models = {'Linear':LinearRegression(), 'Support Vector (SVR)': make_pipeline(StandardScaler(), SVR(kernel='rbf')), 'Decision Tree':DecisionTreeRegressor()}
+    models = {'Linear':linear_model, 'Support Vector (SVR)': svr_model, 'Decision Tree':decision_tree_model}
+    #models = {'Linear':LinearRegression(), 'Support Vector (SVR)': make_pipeline(StandardScaler(), SVR(kernel='rbf')), 'Decision Tree':DecisionTreeRegressor()}
     
     # set up dataframe of results
     df_results = pd.DataFrame(columns=models.keys(), index=features)
@@ -108,9 +108,10 @@ def model_comparison(df, ticker, features):
             y = df[ticker]
 
             m = models[model]
-            r2 = cross_val_score(m, X, y, cv=5, scoring='r2')
+            #r2 = cross_val_score(m, X, y, cv=5, scoring='r2').mean()
+            r2 = m(X, y)
 
             # store R2 mean in dataframe 
-            df_results.loc[feature, model] = r2.mean()
+            df_results.loc[feature, model] = r2
     
     return df_results.astype(float)

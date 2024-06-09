@@ -21,7 +21,7 @@ def process_reddit_data(csv):
     df_activity = df_activity.pivot(index='date', columns='community_discussion', values='count')
     df_activity.reset_index(inplace=True)
     df_activity.fillna(0, inplace=True)
-    #df_activity['date'] = pd.to_datetime(df_activity['date'])
+    df_activity['all'] = df_activity[[c for c in df_activity.columns if c!='date']].sum(axis=1)
 
     df_activity.to_csv('community_discussion_counts_clean.csv', index=False) 
 
