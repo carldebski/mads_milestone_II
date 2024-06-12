@@ -13,24 +13,34 @@ from sklearn.tree import DecisionTreeRegressor
 def linear_model(X, y):
     # import libraries
     from sklearn.linear_model import LinearRegression
+    from sklearn.model_selection import TimeSeriesSplit
 
-    # create model
-    model = LinearRegression()
+    tscv = TimeSeriesSplit(n_splits=5)
+    r2_scores = []
 
-    # split train and test sets
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    for train_index, test_index in tscv.split(X):
+        X_train, X_test = X.iloc[train_index], X.iloc[test_index]
+        y_train, y_test = y.iloc[train_index], y.iloc[test_index]
+        
+        # Initialize the scaler
+        scaler = StandardScaler()
+        
+        # apply scaling 
+        X_train_scaled = scaler.fit_transform(X_train)
+        X_test_scaled = scaler.transform(X_test)
+        
+        # create and fit model
+        model = LinearRegression()
+        model.fit(X_train_scaled, y_train)
+        
+        # make predictions using the testing data
+        y_pred = model.predict(X_test_scaled)
+        
+        # Calculate r2 score
+        r2 = r2_score(y_test, y_pred)
+        r2_scores.append(r2)
 
-    # fit model using the training data
-    model.fit(X_train, y_train)
-
-    # make predictions using the testing data
-    y_pred = model.predict(X_test)
-
-    # calculate the Mean Squared Error (MSE) and R-squared (R2) score
-    mse = mean_squared_error(y_test, y_pred)
-    r2 = r2_score(y_test, y_pred)
-
-    return r2
+    return np.mean(r2_scores)
 
 
 def svr_model(X, y):
@@ -45,7 +55,6 @@ def svr_model(X, y):
 
     #split train and test sets
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-    scores = cross_val_score(svr_model, X, y, cv=5, scoring='r2').mean()
 
     #apply scaling and reshaping 
     sc_X = StandardScaler()
@@ -63,7 +72,7 @@ def svr_model(X, y):
     y_pred = sc_y.inverse_transform(y_pred.reshape(-1,1)).ravel()
 
     # calculate the Mean Squared Error (MSE) and R-squared (R2) score
-    mse = mean_squared_error(y_test, y_pred)
+    #mse = mean_squared_error(y_test, y_pred)
     r2 = r2_score(y_test, y_pred)
 
     return r2
