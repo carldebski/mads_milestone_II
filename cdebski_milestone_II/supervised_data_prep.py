@@ -11,12 +11,8 @@ def process_reddit_data(df_cluster, df_topic):
     df['date'] = pd.to_datetime(df['date'])
     df['date'] = df['date'].dt.date
 
-    # map cluster names
-    #clusters = {0:'', 1:'', 2:'', 3:'', 4:'', 5:'', 6:'', 7:''}
-    #df['community_label'] = df['community_label'].map(clusters)
-
     # topic and cluster activity by date
-    df['community_discussion'] = df['community_label'].astype(str) + ':' + df['topic']
+    df['community_discussion'] = df['community_label_str'] + ':' + df['topic']
     df_activity = df.groupby(by=['date', 'community_discussion'], as_index=False).count()
     df_activity = df_activity[['date', 'community_discussion', 'id']]
     
@@ -71,6 +67,7 @@ def transform_data(df_combined_clean, ticker, shift=0, rolling_avg=0, stock_pric
 
     df_combined_clean = df_combined_clean.dropna(how='any')
 
+    #df_combined_clean.to_csv('transformed_clean.csv', index=False)
     return df_combined_clean
 
 
