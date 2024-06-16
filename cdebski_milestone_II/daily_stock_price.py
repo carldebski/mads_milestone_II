@@ -27,5 +27,7 @@ def get_stock_prices(ticker, start, end):
     history['Date'] = history['Date'].dt.date
     history.columns = ['date', ticker]
 
-    #history.to_csv('stock_prices.csv', index=False)
+    history.to_csv('stock_prices.csv', index=False)
     return history
+
+get_stock_prices('GME', '2021-01-01', '2021-09-30')
