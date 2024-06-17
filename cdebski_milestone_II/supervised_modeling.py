@@ -6,6 +6,7 @@ from sklearn.svm import SVR
 from sklearn.linear_model import LinearRegression
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.model_selection import TimeSeriesSplit
+from sklearn.preprocessing import StandardScaler
 
 
 def model_comparison(df, ticker, features):
@@ -52,20 +53,28 @@ def model_comparison(df, ticker, features):
             X_train, X_test = X.iloc[train_index], X.iloc[test_index]
             y_train, y_test = y.iloc[train_index], y.iloc[test_index]
 
+            scaler_x = StandardScaler()
+            scaler_y = StandardScaler()
+
+            X_train_scaled = scaler_x.fit_transform(X_train)
+            X_test_scaled = scaler_x.transform(X_test)
+            y_train_scaled = scaler_y.fit_transform(y_train.values.reshape(-1, 1)).flatten()
+            y_test_scaled = scaler_y.transform(y_test.values.reshape(-1, 1)).flatten()
+
             # evaluate each cross validation split with each of the identified models
             for model in models:
-
+                
                 # select model
                 m = models[model]
 
                 # fit model using the training data
-                m.fit(X_train, y_train)
+                m.fit(X_train_scaled, y_train_scaled)
 
                 # make predictions using the testing data
-                y_pred = m.predict(X_test)
+                y_pred_scaled = m.predict(X_test_scaled)
 
                 # calculate the r2 score of predictions against held out test data
-                r2 = r2_score(y_test, y_pred)
+                r2 = r2_score(y_test_scaled, y_pred_scaled)
                 condition = (r2_crossval_results['model']==model) & (r2_crossval_results['features']==str(feature)) & (r2_crossval_results['cv']==cv)
                 r2_crossval_results.loc[condition, 'r2'] = r2
     

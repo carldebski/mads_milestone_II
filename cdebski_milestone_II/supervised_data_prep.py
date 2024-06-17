@@ -22,7 +22,7 @@ def process_reddit_data(df_cluster, df_topic):
     df['date'] = df['date'].dt.date
 
     # calculate topic and cluster activity by date
-    df['community_discussion'] = df['community_label_str'] + ':' + df['topic']
+    df['community_discussion'] = df['community_label_str'] + ' community talking about ' + df['topic']
     df_activity = df.groupby(by=['date', 'community_discussion'], as_index=False).count()
     df_activity = df_activity[['date', 'community_discussion', 'id']]
     
@@ -120,6 +120,8 @@ def transform_data(df_combined_clean, ticker, shift=0, rolling_avg=0, stock_pric
         df_combined_clean[ticker] = df_combined_clean[ticker].diff()
     elif stock_price=='log':
         df_combined_clean[ticker] = np.log(df_combined_clean[ticker])
+    elif stock_price=='orig':
+        pass
 
     # apply feature shift
     if shift!=0:
