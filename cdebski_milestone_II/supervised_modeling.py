@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 import itertools
-from sklearn.metrics import r2_score
+from sklearn.metrics import r2_score, mean_squared_error
 from sklearn.svm import SVR
 from sklearn.linear_model import LinearRegression
 from sklearn.tree import DecisionTreeRegressor
@@ -36,7 +36,7 @@ def model_comparison(df, ticker, features):
     combinations = list(itertools.product(models, features, range(1, 6)))
     r2_crossval_results = pd.DataFrame(combinations, columns=['model', 'features', 'cv'])
     r2_crossval_results['features'] = r2_crossval_results['features'].astype(str)
-    r2_crossval_results['r2'] = None
+    r2_crossval_results['mse'] = None
 
     # model and collect results for each group of features
     for feature in features:
@@ -58,8 +58,8 @@ def model_comparison(df, ticker, features):
 
             X_train_scaled = scaler_x.fit_transform(X_train)
             X_test_scaled = scaler_x.transform(X_test)
-            y_train_scaled = scaler_y.fit_transform(y_train.values.reshape(-1, 1)).flatten()
-            y_test_scaled = scaler_y.transform(y_test.values.reshape(-1, 1)).flatten()
+            #y_train_scaled = scaler_y.fit_transform(y_train.values.reshape(-1, 1)).flatten()
+            #y_test_scaled = scaler_y.transform(y_test.values.reshape(-1, 1)).flatten()
 
             # evaluate each cross validation split with each of the identified models
             for model in models:
@@ -68,14 +68,14 @@ def model_comparison(df, ticker, features):
                 m = models[model]
 
                 # fit model using the training data
-                m.fit(X_train_scaled, y_train_scaled)
+                m.fit(X_train_scaled, y_train)
 
                 # make predictions using the testing data
-                y_pred_scaled = m.predict(X_test_scaled)
+                y_pred = m.predict(X_test_scaled)
 
                 # calculate the r2 score of predictions against held out test data
-                r2 = r2_score(y_test_scaled, y_pred_scaled)
+                mse = mean_squared_error(y_test, y_pred)
                 condition = (r2_crossval_results['model']==model) & (r2_crossval_results['features']==str(feature)) & (r2_crossval_results['cv']==cv)
-                r2_crossval_results.loc[condition, 'r2'] = r2
+                r2_crossval_results.loc[condition, 'mse'] = mse
     
     return r2_crossval_results

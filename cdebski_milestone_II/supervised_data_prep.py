@@ -119,7 +119,7 @@ def transform_data(df_combined_clean, ticker, shift=0, rolling_avg=0, stock_pric
     if stock_price=='diff':
         df_combined_clean[ticker] = df_combined_clean[ticker].diff()
     elif stock_price=='log':
-        df_combined_clean[ticker] = np.log(df_combined_clean[ticker])
+        df_combined_clean[ticker] = np.log(df_combined_clean[ticker] / df_combined_clean[ticker].shift(1))
     elif stock_price=='orig':
         pass
 
