@@ -33,7 +33,7 @@ def process_reddit_data(df_cluster, df_topic):
     df_activity.fillna(0, inplace=True)
     
     # add column that includes counts of all activity
-    df_activity['all'] = df_activity[[c for c in df_activity.columns if c!='date']].sum(axis=1)
+    # df_activity['all'] = df_activity[[c for c in df_activity.columns if c!='date']].sum(axis=1)
     
     #df_activity.to_csv('community_discussion_counts_clean.csv', index=False) 
     return df_activity
@@ -168,3 +168,38 @@ def pre_process_data(df_prices, df_communites, df_topics, min_date, max_date, ti
     df_processed = transform_data(df_combined_clean, ticker, **kwargs)
 
     return df_processed
+
+
+def feature_selection(df, ticker):
+    """
+    Rank correlation of features to target variable (stock price). Return r2 values. 
+
+    Parameters
+        > df (pd.DataFrame): dataframe of features and target variable
+        > ticker (str): column name of target variable 
+
+    Returns
+        > df (pd.DataFrame): dataframe of r2 restuls sorted highest to lowest. 
+    """
+    
+    # drop unused columns
+    df = df.drop('date', axis=1)
+  
+    # dataframe to capture r2 results for each feature
+    results = pd.DataFrame(columns=['feature', 'r2'])
+    results['feature'] = df.columns
+
+    # calucate r2 for each feature with the stock price
+    for col in df.columns:
+        correlation_matrix = df.corr()
+        correlation = correlation_matrix.loc[ticker, col]
+        r_squared = correlation**2
+        results.loc[results['feature']==col, ['r2']] = r_squared
+
+    # highest correlations listed first
+    results.sort_values(by='r2', ascending =False, inplace=True)
+
+    # remove correlation with self
+    results = results[results['feature'] != ticker]
+
+    return results['feature'].to_list()
