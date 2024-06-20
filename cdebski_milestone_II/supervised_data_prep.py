@@ -23,19 +23,23 @@ def process_reddit_data(df_cluster, df_topic):
 
     # calculate topic and cluster activity by date
     df['community_discussion'] = df['community_label_str'] + ' community talking about ' + df['topic']
-    df_activity = df.groupby(by=['date', 'community_discussion'], as_index=False).count()
-    df_activity = df_activity[['date', 'community_discussion', 'id']]
     
-    # clean up dataframe
-    df_activity.columns = ['date', 'community_discussion', 'count']
-    df_activity = df_activity.pivot(index='date', columns='community_discussion', values='count')
-    df_activity.reset_index(inplace=True)
-    df_activity.fillna(0, inplace=True)
+    # count posts by community, topic, and community and topic
+    df_comm = df.groupby(by=['date', 'community_label_str'], as_index=False).count()
+    df_topic = df.groupby(by=['date', 'topic'], as_index=False).count()
+    df_both = df.groupby(by=['date', 'community_discussion'], as_index=False).count()
     
-    # add column that includes counts of all activity
-    # df_activity['all'] = df_activity[[c for c in df_activity.columns if c!='date']].sum(axis=1)
+    # convert from tall to wide 
+    df_comm = df_comm.pivot(index='date', columns='community_label_str', values='id').reset_index()
+    df_topic = df_topic.pivot(index='date', columns='topic', values='id').reset_index()
+    df_both = df_both.pivot(index='date', columns='community_discussion', values='id').reset_index()
     
-    #df_activity.to_csv('community_discussion_counts_clean.csv', index=False) 
+    # combine three feature sources
+    df_activity = df_both.merge(df_comm, on='date')
+    df_activity = df_activity.merge(df_topic, on='date')
+    df_activity = df_activity.fillna(0)
+    
+    df_activity.to_csv('community_discussion_counts_clean.csv', index=False) 
     return df_activity
 
 
@@ -94,7 +98,7 @@ def combine_data(df_market, df_reddit):
     return df
 
 
-def transform_data(df_combined_clean, ticker, shift=0, rolling_avg=0, stock_price='diff'):
+def transform_data(df_combined_clean, ticker, shift=1, rolling_avg=0, stock_price='diff'):
     """
     Combine market and reddit data by date 
 
@@ -123,9 +127,9 @@ def transform_data(df_combined_clean, ticker, shift=0, rolling_avg=0, stock_pric
     elif stock_price=='orig':
         pass
 
-    # apply feature shift
+    # create features that are shifts of existing features 
     if shift!=0:
-        df_combined_clean[feature_cols] = df_combined_clean[feature_cols].shift(shift)
+        df_combined_clean[[c+'_shift{}'.format(shift) for c in feature_cols]] = df_combined_clean[feature_cols].shift(shift)
     
     # apply feature rolling average
     if rolling_avg!=0:
