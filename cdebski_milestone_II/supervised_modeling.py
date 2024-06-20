@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import pickle
 import itertools
 from sklearn.metrics import r2_score, mean_squared_error
 from sklearn.svm import SVR
@@ -77,5 +78,9 @@ def model_comparison(df, ticker, features):
                 mse = mean_squared_error(y_test, y_pred)
                 condition = (r2_crossval_results['model']==model) & (r2_crossval_results['features']==str(feature)) & (r2_crossval_results['cv']==cv)
                 r2_crossval_results.loc[condition, 'mse'] = mse
+
+                # save model in pickle file
+                filename = '{} Model.sav'.format(model)
+                pickle.dump(m, open(filename, 'wb'))
     
     return r2_crossval_results
