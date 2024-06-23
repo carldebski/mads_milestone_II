@@ -39,7 +39,7 @@ def process_reddit_data(df_cluster, df_topic):
     df_activity = df_activity.merge(df_topic, on='date')
     df_activity = df_activity.fillna(0)
     
-    df_activity.to_csv('community_discussion_counts_clean.csv', index=False) 
+    #df_activity.to_csv('community_discussion_counts_clean.csv', index=False) 
     return df_activity
 
 
