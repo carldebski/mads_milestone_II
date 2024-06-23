@@ -171,6 +171,7 @@ def pre_process_data(df_prices, df_communites, df_topics, min_date, max_date, ti
     # apply additional data transformations
     df_processed = transform_data(df_combined_clean, ticker, **kwargs)
 
+    df_processed.to_csv('pre_processed_data.csv', index=False)
     return df_processed
 
 
