@@ -1,3 +1,7 @@
+"""
+This module gets imported and called by return_clustering_results.py
+"""
+
 import datetime
 import pandas as pd
 import numpy as np
@@ -11,6 +15,18 @@ def return_processed_data_clustering(forums=['gme'],min_posts=3,start_date='2021
         start date and end date that you can use for test/train split or cross validation (timesplit).
         This function outputs a dataframe with two columns, both reduced by T-SNE. It will be used to 
         produce cluster labels using K-means
+        
+        Parameters
+        > forums (List): List of Reddit forums to be looked at
+        > min_posts (Integer): Minimum number of posts a user must make to be clustered into communities
+        > start_date (Datetime): Start Date of the train data
+        > end_date (Datetime): End Date of the train data (Start Date for test data)
+
+        Returns
+        > Cleaned and split data (Tuple) for train and test in PCA and non-PCA forms
+        
+        
+        
     """
 
     print('start preparing data')

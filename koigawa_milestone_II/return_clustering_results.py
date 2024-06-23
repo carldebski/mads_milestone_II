@@ -1,10 +1,14 @@
+"""
+This module will process all the python scripts needed to perform data cleaning and model fitting to return output.
+"""
+
 from return_k_means_results import return_k_means_results
 from return_processed_data_clustering import return_processed_data_clustering
 import pandas as pd
 
 min_posts=3
 start_date='2021-01-01'
-end_date='2021-09-30'
+end_date='2021-05-31'
 is_test='N'
 
 
