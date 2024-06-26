@@ -46,6 +46,7 @@ def model_comparison(df, ticker, features):
     results['features'] = results['features'].astype(str)
     results['best_params'] = None
     results['best_mse'] = None
+    results['best_std'] = None
 
     # extract features and predicted variable
     X = df[features]
@@ -74,6 +75,8 @@ def model_comparison(df, ticker, features):
         # get the best parameters
         best_params = grid_search.best_params_
         best_score = -grid_search.best_score_
+        best_index = grid_search.best_index_
+        best_cross_val = grid_search.cv_results_['std_test_score'][best_index]
 
         # best model
         best_model = grid_search.best_estimator_
@@ -82,6 +85,7 @@ def model_comparison(df, ticker, features):
         condition = (results['model']==model) & (results['features']==features_str[0])
         results.loc[condition, 'best_mse'] = best_score
         results.loc[condition, 'best_params'] = str(best_params)
+        results.loc[condition, 'best_std'] = str(best_cross_val)
         
         # save model in pickle file
         filename = '{} Model.sav'.format(model)
