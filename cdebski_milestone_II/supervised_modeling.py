@@ -14,8 +14,8 @@ from sklearn.pipeline import Pipeline
 
 def model_comparison(df, ticker, features):
     """
-    Provides the r2 scores for a Linear Regression, Support Vector Regression, and Decision Tree Regression model given a list 
-    of feature combinations
+    Provides the mse scores for a Linear Regression, Support Vector Regression, and Decision Tree Regression model given a list 
+    using selected features. Models are individually tuned using gridsearchcv. 
 
     Parameters
         > df (pd.DataFrame): dataframe that includes individual feature columns and target variable column 
@@ -23,12 +23,13 @@ def model_comparison(df, ticker, features):
         > features (list of lists): list of feature groupings for models
 
     Returns
-        > r2_crossval_results (pd.DataFrame): results of the three models when trained using the provided features. 
+        > results (pd.DataFrame): results of the three models when trained using the provided features. 
             columns
             - model: the model used
             - feature: the combination of features used
-            - cv: the cross validation step
-            - r2: model result 
+            - best_params: best parameters of tuned model
+            - best_mse: model result 
+            - best_std: std of the cross validation results
     """
 
 
